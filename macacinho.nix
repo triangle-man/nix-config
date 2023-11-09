@@ -1,6 +1,5 @@
 ## Home Raspberry Pi 4 configuration
 ## James Geddes 2023
-##
 
 
 { config, pkgs, ... }:
@@ -19,6 +18,8 @@
   networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   
   services.openssh.enable = true;
+
+  services.tailscale.enable = true;
 
   ## Localisation
   ## ------------
@@ -52,8 +53,10 @@
 
 
   ## System-wide configuration
+  ## -------------------------
   
   environment.systemPackages = with pkgs; [
+    tailscale
     git
     vim
     emacs29
