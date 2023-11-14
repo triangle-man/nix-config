@@ -1,0 +1,3 @@
+#+title: Notes on Nix on MacOs
+
+I currently run homebrew
