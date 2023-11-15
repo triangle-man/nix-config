@@ -14,7 +14,7 @@
   ## Networking
   ## ----------
   
-  networking.hostName = "macacinho"; # Define your hostname.
+  networking.hostName = "macacinho"; 
   networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   
   services.openssh.enable = true;

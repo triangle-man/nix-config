@@ -1,2 +1,4 @@
 # nix-config
-My Nix configuration
+
+My Nix configuration. Currently for a Pi 4.
+

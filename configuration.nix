@@ -2,6 +2,7 @@
 ## James Geddes 2023
 ## 
 ## Copy this file to /etc/nixos
+## and symlink ./nix-config to this repo
 
 { config, pkgs, ... }:
 
