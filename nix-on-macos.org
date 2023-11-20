@@ -1,3 +1,158 @@
 #+title: Notes on Nix on MacOs
 
-I currently run homebrew
+I currently run homebrew.
+
+*** 15 Nov: some details of my existing system
+
+Decided to install using the Determinate Systems installer.
+
+Here is my current ~PATH~:
+#+begin_src sh
+  PATH=
+  /Users/james/Library/Python/3.9/bin:
+  /opt/homebrew/bin:
+  /opt/homebrew/sbin:
+  /usr/local/bin:
+  /System/Cryptexes/App/usr/bin:
+  /usr/bin:
+  /bin:
+  /usr/sbin:
+  /sbin:
+  /var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:
+  /var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:
+  /var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:
+  /Users/james/Library/Racket/8.10/bin:
+  /Library/TeX/texbin:
+  /Applications/quarto/bin:
+  /Users/james/.cabal/bin:
+  /Users/james/.ghcup/bin
+#+end_src
+
+The paths to Python and Haskell get set in ~.zshrc~ (for Haskell, by
+sourcing ~~/.ghcup/env~), and those to homebrew are set in
+~~/.zprofile~ (by eval'ing ~/opt/homebrew/bin/brew shellenv~). Oddly,
+~.zshrc~ is managed by stow; but ~.zprofile~ isn't. Those to Quarto,
+Racket, and TeX are set in various files in ~/etc/paths.d~.
+
+*** 16 Nov: Install nix
+
+Changed my mind. Installed using the official installer.
+
+Now have the following new dotfiles:
+
+- ~.nix-defexpr~: A directory, with stuff about channels;
+- ~.nix-profile~: A symlink to ~~/.local/state/nix/profiles/profile~
+- ~.local/state/nix~: Contains ~/.local/state/nix/profiles~ which is
+  presently empty.
+
+Okay, I need a `nix.conf` to enable the experimental features. Bit odd
+that `nix.conf` is not a nix expression, but okay.
+
+*** 17 Nov: First steps
+
+Okay, let's try to install something.
+
+#+begin_src sh
+  ❯ nix search nixpkgs#bat
+  * legacyPackages.aarch64-darwin.bat (0.24.0)
+    A cat(1) clone with syntax highlighting and Git integration
+
+  ❯ nix search bat
+  error: cannot find flake 'flake:bat' in the flake registries
+
+  ❯ nix profile install nixpkgs#bat
+  ❯ which bat
+  /Users/james/.nix-profile/bin/bat
+#+end_src
+
+Okay, that's a long command for one install. Still, now I have a
+~.nix-profile~:
+#+begin_src sh
+  ❯ ls .nix-profile
+  bin  manifest.json  share
+#+end_src
+
+The manifest file is:
+#+begin_src json
+  {"elements":
+   [
+       {"active":true,
+	"attrPath":"legacyPackages.aarch64-darwin.bat",
+	"originalUrl":"flake:nixpkgs",
+	"outputs":null,
+	"priority":5,
+	"storePaths":["/nix/store/bl96qn8bhksydwy3hzriwxbrwc4j053w-bat-0.24.0"],
+	"url":"github:NixOS/nixpkgs/7414e9ee0b3e9903c24d3379f577a417f0aae5f1"}
+   ],
+   "version":2}%
+#+end_src
+
+Emacs is having trouble finding nix -- I guess all that will be
+resolved once I install emacs via nix ...
+
+I tried to insall ~exa~, but apparently something has happened and it is now ~eza~.
+
+~nix profile list~ is a rather verbose:
+#+begin_src sh
+  ❯ nix profile list --quiet
+  Index:              0
+  Flake attribute:    legacyPackages.aarch64-darwin.bat
+  Original flake URL: flake:nixpkgs
+  Locked flake URL:   github:NixOS/nixpkgs/7414e9ee0b3e9903c24d3379f577a417f0aae5f1
+  Store paths:        /nix/store/bl96qn8bhksydwy3hzriwxbrwc4j053w-bat-0.24.0
+  
+  Index:              1
+  Flake attribute:    legacyPackages.aarch64-darwin.eza
+  Original flake URL: flake:nixpkgs
+  Locked flake URL:   github:NixOS/nixpkgs/7414e9ee0b3e9903c24d3379f577a417f0aae5f1
+  Store paths:        /nix/store/pqbx6a2yn5kavhispixpjxniich53kkz-eza-0.15.3-man /nix/store/xyrsv40v622yz9pb0fzkhk44b59b93y7-eza-0.15.3
+#+end_src
+
+I'm not sure the difference between profiles and the history (does the
+history show what used to be called “generations”?)
+
+*** Nov 18: Updated MacOS
+
+I updated MacOS and nix broke. Turns out that MacOS updates overwrite
+~/etc/zshrc~ (zsh is now the default shell on MacOS) and that file was
+used to source the Nix shell script which sets ones paths.
+
+I read this: [[https://checkoway.net/musings/nix/]]
+
+One thing I learned was the order in which various files get sourced
+when you start a shell. That is:
+
+1. ~/etc/zshenv~ (doesn't exist on MacOS)
+2. ~~/.zshenv~ 
+3. ~/etc/zprofile~ for a login shell (doesn't exist on MacOS)
+4. ~~~/.zprofile~ for a login shell
+5. ~/etc/zshrc~ for an interactive shell
+6. ~~/.zshrc~ for an interactive shell
+7. ~/etc/zlogin~ for a login shell
+8. ~/.zlogin~ for a login shell
+
+Number 3, ~/etc/zprofile~, runs ~/usr/libexec/path_helper~ to set
+~PATH~ to be the things from ~/etc/paths~ and ~/etc/paths.d~, followed
+by whatever is already in the path. That's annoying because it means
+we can't add the nix paths in ~.zshenv~ because they would then be
+lower priority than the ones added by ~/etc/zprofile~. And we can't
+set them in ~.zprofile~ because then they wouldn't be added for
+non-login shells. Oh -- apparently that's fine, and is where we should
+put them. But the web site suggests also /clearing/ the path in ~.zshenv~.
+
+So .. I have not done that, but I have put the thing that sources
+~nix-daemon.sh~ in ~.zprofile~ and taken environment variables out of
+~.zshrc~. That seems to work.
+
+*** Nov 19
+
+I've now installed ~bat±, ~eza~, ~ripgrep~, ~fd~, and ~htop~.  ~/nix/store/~ has 3,838 entries.
+
+I ran ~nix-collect-garbage~. Now ~/nix/store/~ has 1,699 entries. Oh,
+but 1,384 of those are ~.drv~. In fact, there are only 62 directories.
+
+
+
+
+
+
