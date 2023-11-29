@@ -4,8 +4,7 @@
 
 ** Running the downloaded binary
 
-From [[https://nixos.org/download.html#nix-install-macos][the download
-page]]:
+From [[https://nixos.org/download.html#nix-install-macos][the download page]]:
 
 #+begin_src sh
   sh <(curl -L https://nixos.org/nix/install)
@@ -33,7 +32,23 @@ this by writing to ~/etc/
 
 ** Glossary
 
+
 ** Directories and configuration files
+
+~/nix/var/nix~
+
+
+** What functions are available when?
+
+*** ~stdenv~
+
+Standard GNU utilities. Made available in builders by sourcing ~$out/stdenv~
+
+*** ~builtins~
+
+Always available. In addition, ~derivation~, ~import~, ~abort~, and
+~throw~ don't need the ~builtins~ prefix.
+
 
 ** Useful commands
 
