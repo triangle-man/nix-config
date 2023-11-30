@@ -1,0 +1,224 @@
+%% Nix Quick Reference Sheet
+%% James Geddes, The Alan Turing Institute, 2023
+%% CC0
+\documentclass[10pt, a4paper, landscape]{article}
+\usepackage[T1]{fontenc}
+\usepackage{multicol}
+\setlength{\columnsep}{3em}
+\usepackage[medium, compact]{titlesec}
+\titleformat{\section}[block]{\Large\bfseries\filcenter}{\thesection}{1em}{}
+\usepackage{beton}
+\DeclareFontSeriesDefault[rm]{bf}{sbc}
+\usepackage{eulervm}
+\usepackage{amsmath}
+\usepackage[margin=0.51in]{geometry}
+\usepackage{parskip}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{microtype}
+%\usepackage{fancyhdr}
+%%
+%%\usepackage[style=authoryear]{biblatex}
+%%\addbibresource{notes.bib}
+%%
+%%
+\newcommand{\cmd}[1]{\texttt{#1}}
+\newcommand{\str}{\text{String}}
+\newcommand{\pth}{\text{Path}}
+\newcommand{\num}{\text{Number}}
+\newcommand{\lst}{\text{List}}
+\newcommand{\ats}{\text{Attrs}}
+\newcommand{\bln}{\text{Bool}}
+
+%%
+\title{Nix Quick Reference}
+%%\author{}
+\date{\vskip-10ex November 2023}
+%%
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{0.5em}
+%%
+\begin{document}%\maketitle
+%%
+\begin{multicols*}{3}\raggedcolumns%
+%%
+\maketitle
+
+\section*{Builtins}
+
+\subsection*{Operators}
+
+The following are approximately in order of precendence. Function
+application (represented by a space) has precedence just below
+attribute selection.
+
+The expression \emph{attrs} denotes an atrribute set (that is, a map
+from strings to values). An \emph{attrpath} is a dot-separated list of
+attribute names.
+
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+
+  \parbox[t]{8em}{\emph{attrs}\texttt{.}\emph{attrpath} \\
+    $[$ \texttt{or} \emph{expr} $]$}
+  & Attribute selection (with default if attribute does not exist). \\
+
+  \emph{attrs} \texttt{?} \emph{attrpath} & Test whether attribute
+  exists. \\
+
+  \cmd{++} & List concatenation. \\
+  
+  \cmd{*}, \cmd{/}, \cmd{-}, \cmd{+} & Arithmetic (including unary
+  minus, which has higher precedence than attribute testing). \\
+  
+  \cmd{+} & String (and path) concatenation. \\
+  
+  \cmd{\&\&}, \cmd{||}, \cmd{->}, \cmd{!} & Logical operators
+  (including implication and negation). \\
+  
+  \cmd{<}, \cmd{<=}, \cmd{>}, \cmd{>=}, \cmd{==}, \cmd{!=} &
+  Comparison.
+\end{tabularx}
+
+\subsection*{Constants}
+Specific values show the value of the constant as of today, on my
+machine.
+
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+\cmd{currentSystem} & "aarch64-darwin" \\
+\cmd{currentTime} & 1700936742 \\
+\cmd{nixVersion} & \cmd{"2.18.1"}, as returned by `cmd{nix -{}-version}' \\
+\cmd{langVersion} & 6 \\
+\cmd{true}, \cmd{false} & Boolean values. \\
+\cmd{null} & Null. \\
+\cmd{builtins} & \cmd{\{\ ...\ \}} \\
+\cmd{storeDir} & \cmd{"/nix/store"} \\
+\cmd{nixPath} & \cmd{[\ ...\ ]} I think a list of three elements. \\
+\cmd{derivation} & \cmd{«lambda @ /builtin/derivation.nix:5:1»} No idea!
+\end{tabularx}
+
+\subsection*{Functions}
+
+Undocumented:
+\cmd{addDrvOutputDependencies},
+
+
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+
+\cmd{abort} & $\str \to \bot $. Abort and print message. \\
+  
+\cmd{add} &  $\num \to \num \to \num$. \\
+
+
+\cmd{all} & $(\alpha \to \bln) \to \lst \to \bln$. \\
+
+\cmd{any} & $(\alpha \to \bln) \to \lst \to \bln$.\\ 
+
+\end{tabularx}
+
+\cmd{addErrorContext}:
+\cmd{appendContext}:
+\cmd{attrNames}:
+\cmd{attrValues}:
+\cmd{baseNameOf}:
+\cmd{bitAnd}:
+\cmd{bitOr}:
+\cmd{bitXor}:
+\cmd{break}:
+\cmd{catAttrs}:
+\cmd{ceil}:
+\cmd{compareVersions}:
+\cmd{concatLists}:
+\cmd{concatMap}:
+\cmd{concatStringsSep}:
+\cmd{deepSeq}:
+\cmd{derivationStrict}:
+\cmd{dirOf}:
+\cmd{div}:
+\cmd{elem}:
+\cmd{elemAt}:; false = false
+\cmd{fetchGit}:
+\cmd{fetchMercurial}:
+\cmd{fetchTarball}:
+\cmd{fetchTree}:
+\cmd{fetchurl}:
+\cmd{filter}:
+\cmd{filterSource}:
+\cmd{findFile}:
+\cmd{flakeRefToString}:
+\cmd{floor}:
+\cmd{foldl'}:
+\cmd{fromJSON}:
+\cmd{fromTOML}:
+\cmd{functionArgs}:
+\cmd{genList}:
+\cmd{genericClosure}:
+\cmd{getAttr}:
+\cmd{getContext}:
+\cmd{getEnv}:
+\cmd{getFlake}:
+\cmd{groupBy}:
+\cmd{hasAttr}:
+\cmd{hasContext}:
+\cmd{hashFile}:
+\cmd{hashString}:
+\cmd{head}:
+\cmd{import}:
+\cmd{intersectAttrs}:
+\cmd{isAttrs}:
+\cmd{isBool}:
+\cmd{isFloat}:
+\cmd{isFunction}:
+\cmd{isInt}:
+\cmd{isList}:
+\cmd{isNull}:
+\cmd{isPath}:
+\cmd{isString}:
+\cmd{length}:
+\cmd{lessThan}:
+\cmd{listToAttrs}:
+\cmd{map}:
+\cmd{mapAttrs}:
+\cmd{match}:
+\cmd{mul}:
+
+\cmd{parseDrvName}:
+\cmd{parseFlakeRef}:
+\cmd{partition}:
+\cmd{path}:
+\cmd{pathExists}:
+\cmd{placeholder}:
+\cmd{readDir}:
+\cmd{readFile}:
+\cmd{readFileType}:
+\cmd{removeAttrs}:
+\cmd{replaceStrings}:
+\cmd{scopedImport}:
+\cmd{seq}:
+\cmd{sort}:
+\cmd{split}:
+\cmd{splitVersion}:
+\cmd{storePath}:
+\cmd{stringLength}:
+\cmd{sub}:
+\cmd{substring}:
+\cmd{tail}:
+\cmd{throw}:
+\cmd{toFile}:
+\cmd{toJSON}:
+\cmd{toPath}:
+\cmd{toString}:
+\cmd{toXML}:
+\cmd{trace}:
+\cmd{traceVerbose}:
+\cmd{tryEval}:
+\cmd{typeOf}:
+\cmd{unsafeDiscardOutputDependency}:
+\cmd{unsafeDiscardStringContext}:
+\cmd{unsafeGetAttrPos}:
+\cmd{zipAttrsWith}:
+
+  
+
+\end{multicols*}
+\end{document}
