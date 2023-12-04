@@ -85,16 +85,19 @@ Specific values show the value of the constant as of today, on my
 machine.
 
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{currentSystem} & "aarch64-darwin" \\
-\cmd{currentTime} & 1700936742 \\
-\cmd{nixVersion} & \cmd{"2.18.1"}, as returned by `cmd{nix -{}-version}' \\
-\cmd{langVersion} & 6 \\
+\cmd{currentSystem} & "aarch64-darwin". \\
+\cmd{currentTime} & 1700936742. Unix time; does not update on repeated
+evaluation. \\
+\cmd{nixVersion} & \cmd{"2.18.1"}, as returned by `cmd{nix -{}-version}'. \\
+\cmd{langVersion} & 6. \\
+\cmd{builtins} & \cmd{\{\ ...\ \}} This very list! \\
+\cmd{storeDir} & \cmd{"/nix/store"}. \\
+\cmd{nixPath} & \cmd{[\ ...\ ]} List of paths to search when a path is
+written in the form \cmd{<\emph{path}>}.  \\
+\cmd{derivation} & \cmd{«lambda @ /builtin/derivation.nix:5:1»} No
+idea! \\
 \cmd{true}, \cmd{false} & Boolean values. \\
-\cmd{null} & Null. \\
-\cmd{builtins} & \cmd{\{\ ...\ \}} \\
-\cmd{storeDir} & \cmd{"/nix/store"} \\
-\cmd{nixPath} & \cmd{[\ ...\ ]} I think a list of three elements. \\
-\cmd{derivation} & \cmd{«lambda @ /builtin/derivation.nix:5:1»} No idea!
+\cmd{null} & The value \cmd{null}. \\
 \end{tabularx}
 
 \subsection*{Functions}
