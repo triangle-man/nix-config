@@ -24,12 +24,12 @@
 %%
 %%
 \newcommand{\cmd}[1]{\texttt{#1}}
-\newcommand{\str}{\text{String}}
-\newcommand{\pth}{\text{Path}}
-\newcommand{\num}{\text{Number}}
-\newcommand{\lst}{\text{List}}
-\newcommand{\ats}{\text{Attrs}}
-\newcommand{\bln}{\text{Bool}}
+\newcommand{\str}{\textsf{String}}
+\newcommand{\pth}{\textsf{Path}}
+\newcommand{\num}{\textsf{Number}}
+\newcommand{\lst}{\textsf{List}}
+\newcommand{\ats}{\textsf{Attrs}}
+\newcommand{\bln}{\textsf{Bool}}
 
 %%
 \title{Nix Quick Reference}
@@ -72,12 +72,17 @@ attribute names.
   minus, which has higher precedence than attribute testing). \\
   
   \cmd{+} & String (and path) concatenation. \\
-  
-  \cmd{\&\&}, \cmd{||}, \cmd{->}, \cmd{!} & Logical operators
-  (including implication and negation). \\
+
+  \emph{attrs} \cmd{//} \emph{attrs} & Update attribute set on the
+  left with the entries from the attribute set on the right. \\
   
   \cmd{<}, \cmd{<=}, \cmd{>}, \cmd{>=}, \cmd{==}, \cmd{!=} &
-  Comparison.
+  Comparison. \\
+
+  \cmd{!}, \cmd{\&\&}, \cmd{||}, \cmd{->} & Logical operators,
+  including negation and implication. (Negation has higher precendence
+  than comparison.) \\
+  
 \end{tabularx}
 
 \subsection*{Constants}
@@ -85,12 +90,12 @@ Specific values show the value of the constant as of today, on my
 machine.
 
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{currentSystem} & "aarch64-darwin". \\
+\cmd{currentSystem} & \cmd{"aarch64-darwin"}. \\
 \cmd{currentTime} & 1700936742. Unix time; does not update on repeated
 evaluation. \\
 \cmd{nixVersion} & \cmd{"2.18.1"}, as returned by `cmd{nix -{}-version}'. \\
 \cmd{langVersion} & 6. \\
-\cmd{builtins} & \cmd{\{\ ...\ \}} This very list! \\
+\cmd{builtins} & \cmd{\{\ ...\ \}}. This very list! \\
 \cmd{storeDir} & \cmd{"/nix/store"}. \\
 \cmd{nixPath} & \cmd{[\ ...\ ]} List of paths to search when a path is
 written in the form \cmd{<\emph{path}>}.  \\
@@ -100,35 +105,64 @@ idea! \\
 \cmd{null} & The value \cmd{null}. \\
 \end{tabularx}
 
-\subsection*{Functions}
+\subsection*{Derivations}
 
-Undocumented:
-\cmd{addDrvOutputDependencies},
+% \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+  \cmd{addDrvOutputDependencies} ?
 
+    Create a copy of the given string where a single consant string context element is turned into a "derivation deep" string context element.
 
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+    The store path that is the constant string context element should point to a valid derivation, and end in .drv.
 
-\cmd{abort} & $\str \to \bot $. Abort and print message. \\
+    The original string context element must not be empty or have multiple elements, and it must not have any other type of element other than a constant or derivation deep element. The latter is supported so this function is idempotent.
+
+    This is the opposite of builtins.unsafeDiscardOutputDependency.
   
-\cmd{add} &  $\num \to \num \to \num$. \\
+\cmd{addErrorContext} ?
+\cmd{appendContext} ?
 
+% \end{tabularx}
 
+\subsection*{Arithmetic and logical}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+  \cmd{add} &  $\num \to \num \to \num$. \\
+  \cmd{bitAnd} & $\num \to \num \to \num$. \\
+  \cmd{bitOr} & $\num \to \num \to \num$. \\
+  \cmd{bitXor} & $\num \to \num \to \num$. \\
+  
+\end{tabularx}
+
+\subsection*{Lists}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
 \cmd{all} & $(\alpha \to \bln) \to \lst \to \bln$. \\
+\cmd{any} & $(\alpha \to \bln) \to \lst \to \bln$. \\ 
+\end{tabularx}
 
-\cmd{any} & $(\alpha \to \bln) \to \lst \to \bln$.\\ 
+\subsection*{Attribute sets}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+\cmd{attrNames} & $\ats \to \lst$. Names, alphabetically
+sorted. \\
+\cmd{attrValues} & $\ats \to \lst$. Values, in the same order as returned
+by\cmd{attrNames}. \\
+\cmd{catAttrs} & $\str \to \lst[\ats] \to \lst$. Return the values of a
+named attribute from a list of attribute sets.
 
 \end{tabularx}
 
-\cmd{addErrorContext}:
-\cmd{appendContext}:
-\cmd{attrNames}:
-\cmd{attrValues}:
-\cmd{baseNameOf}:
-\cmd{bitAnd}:
-\cmd{bitOr}:
-\cmd{bitXor}:
-\cmd{break}:
-\cmd{catAttrs}:
+\subsection*{Paths and strings}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+\cmd{baseNameOf} & $\str\to\str$. Everything following the last \cmd{/}.
+
+\end{tabularx}
+
+\subsection*{Other}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+\cmd{abort} & $\str \to \bot $. Abort and print message. \\
+\cmd{break} & $\str \to \bot $. In debug mode, enter REPL.\@ Otherwise print string.
+
+\end{tabularx}
+
+
 \cmd{ceil}:
 \cmd{compareVersions}:
 \cmd{concatLists}:
