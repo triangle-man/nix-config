@@ -108,17 +108,39 @@ machine.
 \end{tabularx}
 
 \subsection*{Arithmetic and logical}
+
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-  \cmd{isInt}, \cmd{isFloat} & Predicates for numbers. \\
-  \cmd{add}, \cmd{sub}, \cmd{mul}, \cmd{div} &  Binary operators. \\ 
+  \cmd{isInt}, \cmd{isFloat} & $\alpha\to\bln$. Predicates for numbers. \\
+
+  \cmd{isBool} & $\alpha\to\bln$. Predicate for boolean. \\
+
+  \cmd{add}, \cmd{sub}, \cmd{mul}, \cmd{div} & Binary operators. \\
+
   \cmd{ceil}, \cmd{floor} & $\num\to\itg$. \\
+
   \cmd{lessThan} & Comparison. \\
-  \cmd{bitAnd}, \cmd{bitOr}, \cmd{bitXor} & Bitwise logical operators. \\
+
+  \cmd{bitAnd}, \cmd{bitOr}, \cmd{bitXor} & Bitwise logical
+  operators. \\
 \end{tabularx}
+
+\subsection*{Other types}
+
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+  \cmd{isFunction} & $\alpha\to\bln$. Predicate for functions. \\
+
+  \cmd{isNull} & $\alpha\to\bln$. Predicate for value `\cmd{null}'. \\
+
+  \cmd{typeOf} & $\alpha\to\str$. Return string representation of type of
+  value. (Attribute sets return `\cmd{set}'; functions return
+  `\cmd{lambda}'.) \\
+  
+\end{tabularx}
+
 
 \subsection*{Lists}
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-  \cmd{isList}      & Predicate for lists. \\
+  \cmd{isList}      & $\alpha\to\bln$. Predicate for lists. \\
   \cmd{[]}          & The empty list. \\
   \cmd{genList}     & $(\itg\to\alpha)\to\itg\to\lst[\alpha]$.\newline
   \cmd{genList} $f$ $n$ applies $f$ to the list 0, 1, 2, \dots, $n-1$. \\
@@ -155,101 +177,182 @@ machine.
 
 \subsection*{Attribute sets}
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{attrNames} & $\ats \to \lst$. Names, alphabetically
-sorted. \\
-\cmd{attrValues} & $\ats \to \lst$. Values, in the same order as returned
-by\cmd{attrNames}. \\
-\cmd{catAttrs} & $\str \to \lst[\ats] \to \lst$. Return the values of a
-named attribute from a list of attribute sets.
+  \cmd{isAttrs} & $\alpha\to\bln$. Predicate for attribute sets. \\
+
+  \cmd{attrNames} & $\ats \to \lst$. Names, alphabetically sorted. \\
+
+  \cmd{attrValues} & $\ats \to \lst$. Values, in the same order as
+  returned by\cmd{attrNames}. \\
+
+  \cmd{catAttrs} & $\str \to \lst[\ats] \to \lst$. Return the values of a
+  named attribute from a list of attribute sets. \\
+
+  \cmd{functionArgs} & $(\alpha\to\beta)\to\ats$. Return names of attributes
+  pattern-matched by function. Values are a boolean indicating whether
+  argument has a default value. \\
+
+  \cmd{genericClosure} & $\ats\{\cmd{startSet},
+  \cmd{operator}\}\to\lst[\ats]$. Repeatedly apply \cmd{operator} to
+  each attribute set in a $\lst[\ats]$ that contains a value
+
+  \cmd{key}, strating with \cmd{startSet} and producing a new
+  attribute set with a \cmd{key}, until no more are produced. \\
+
+  \cmd{getAttr} & $\str\to\ats\to\alpha$. Return value of named attribute. \\
+
+  \cmd{hasAttr} & $\str\to\ats\to\bln$. Check whether named attribute
+  exists. \\
+
+  \cmd{intersectAttrs} & $\ats\to\ats\to\ats$. Intersect by name; values
+  in second argument take precedence. \\
+
+  \cmd{mapAttrs} & $(\str\to\alpha\to\beta)\to\ats\to\ats$. Map over attribute set. \\
+
+  \cmd{zipAttrsWith} & $(\str\to\lst[\alpha]\to\beta)\to\lst[\ats]\to\ats$. Transpose
+  list of attribute sets into an attribute set of lists and apply
+  \cmd{mapAttrs}.\\
+
+  \cmd{removeAttrs} & $\ats\to\lst[\str]\to\ats$. Remove attributes. \\
+
 
 \end{tabularx}
 
 \subsection*{Paths and strings}
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{baseNameOf} & $\str\to\str$. Everything following the last
-`\cmd{/}' in a path.
 
+  \cmd{isPath}, \cmd{isString} & $\alpha\to\bln$. Predicates for paths and
+  strings. \\
+
+  \cmd{baseNameOf} & $\str\to\str$. Everything following the last
+  `\cmd{/}' in a path. \\
+
+  \cmd{dirOf} & $\str\to\str$. Everything before the final `\cmd{/}`. \\
+  
+  \cmd{compareVersions} & $\str\to\str\to\bln$. Compare versions
+  represented as semantic version strings. \\
+  
+  \cmd{splitVersion} & $\str\to\lst[\str]$. Split semantic version into
+  components. \\
+  
+  \cmd{concatStringsSep} & $\str\to\lst[\str]\to\str$. Concactenate a list
+  of strings, splicing in a separator. \\
+
+  \cmd{convertHash} & $\ats\to\str$. [2.19] Convert a hash to specified
+  format. The attribute set must contain names `\cmd{hash}',
+  `\cmd{hashAlgo}', and `\cmd{toHashFormat}'. \\
+
+  \cmd{fromJSON}, \cmd{fromTOML} & $\str\to\alpha$. Convert string to a Nix
+  value. \\
+
+  \cmd{hashString} & $\str\to\str\to\str$. Hash the second argument using
+  the method indicated by the first argument. \\
+  
+  \cmd{match} & $\str\to\str\to\lst[\str]$. Regular expression
+  matching. First argument is extended POSIX regex. \\
+  
+  \cmd{split} & $\str\to\str\to\lst[\str]$. List of matches in second
+  argument by regex groups given in first, interleaving with
+  non-matched strings. \\
+    
+  \cmd{replaceStrings} & $\lst[\str]\to\lst[\str]\to\str$. Replace every
+  occurence of substring in first argument with string in second. \\
+
+  \cmd{stringLength} & $\str\to\itg$. \\
+
+  \cmd{substring} & $\itg\to\itg\to\str$. Arguments are start and
+  length. A length of $-1$ means ``until end of string.'' \\
+\end{tabularx}
+
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+    
+  \cmd{toJSON} & $\alpha\to\str$. Convert to JSON.\@ Derivations are translated
+  to output paths; paths are copied to the store and converted to
+  store paths. \\
+  
+  \cmd{toXML} & $\alpha\to\str$. Convert to XML representation. \\
+
+  \cmd{toString} & $\alpha\to\str$. Booleans become \cmd{""} and
+  \cmd{"1"}. Attribute sets use the value of applying
+  \cmd{\_\_toString} to themselves or the value of \cmd{outPath}. \\
+
+  \cmd{toPath} & Deprecated. Use path concatenation. \\
 \end{tabularx}
 
 \subsection*{Other}
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{abort} & $\str \to \bot $. Abort and print message. \\
-\cmd{break} & $\str \to \bot $. In debug mode, enter REPL.\@ Otherwise print string.
 
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+  \cmd{abort} & $\str \to \bot $. Abort and print message. \\
+
+  \cmd{break} & $\str \to \bot $. In debug mode, enter REPL.\@ Otherwise
+  print string.\\
+
+  \cmd{throw} & $\str\to\bot$. Throw error message. Occasionally does not
+  abort. \\
+
+  \cmd{trace} & $\alpha\to\beta\to\beta$. Print first argument on stderr, then evaluate
+  second argument. \\
+
+  \cmd{traceVerbose} &  $\alpha\to\beta\to\beta$. Like \cmd{trace} but only print if
+  \cmd{{-}{-}trace-verbose} enabled. \\
+
+  \cmd{tryEval} & $\alpha\to\ats\{\cmd{success}; \cmd{value}\}$. Attemt to
+  shallowly evaluate expression, catching \cmd{throw} or \cmd{assert}
+  (but not \cmd{abort}). 
 \end{tabularx}
 
 
+\cmd{placeholder} 
 
-\cmd{compareVersions}:
-
-\cmd{concatStringsSep}:
 \cmd{deepSeq}:
+
 \cmd{derivationStrict}:
-\cmd{dirOf}:
+
 \cmd{fetchGit}:
 \cmd{fetchMercurial}:
 \cmd{fetchTarball}:
 \cmd{fetchTree}:
 \cmd{fetchurl}:
+
 \cmd{filterSource}:
 \cmd{findFile}:
+
 \cmd{flakeRefToString}:
-\cmd{fromJSON}:
-\cmd{fromTOML}:
-\cmd{functionArgs}:
-\cmd{genericClosure}:
-\cmd{getAttr}:
+
 \cmd{getContext}:
 \cmd{getEnv}:
 \cmd{getFlake}:
-\cmd{hasAttr}:
 \cmd{hasContext}:
+
 \cmd{hashFile}:
-\cmd{hashString}:
 \cmd{import}:
-\cmd{intersectAttrs}:
-\cmd{isAttrs}:
-\cmd{isBool}:
-\cmd{isFloat}:
-\cmd{isFunction}:
-\cmd{isInt}:
-\cmd{isNull}:
-\cmd{isPath}:
-\cmd{isString}:
-\cmd{mapAttrs}:
-\cmd{match}:
+
 \cmd{parseDrvName}:
 \cmd{parseFlakeRef}:
 
+
 \cmd{path}:
 \cmd{pathExists}:
-\cmd{placeholder}:
+
 \cmd{readDir}:
 \cmd{readFile}:
 \cmd{readFileType}:
-\cmd{removeAttrs}:
-\cmd{replaceStrings}:
+
 \cmd{scopedImport}:
 \cmd{seq}:
-\cmd{split}:
-\cmd{splitVersion}:
+
+
+
 \cmd{storePath}:
-\cmd{stringLength}:
-\cmd{substring}:
-\cmd{throw}:
+
 \cmd{toFile}:
-\cmd{toJSON}:
-\cmd{toPath}:
-\cmd{toString}:
-\cmd{toXML}:
-\cmd{trace}:
-\cmd{traceVerbose}:
-\cmd{tryEval}:
-\cmd{typeOf}:
+
+
+
 \cmd{unsafeDiscardOutputDependency}:
 \cmd{unsafeDiscardStringContext}:
+
 \cmd{unsafeGetAttrPos}:
-\cmd{zipAttrsWith}:
+
 
 \subsection*{Derivations}
 
