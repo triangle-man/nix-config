@@ -1,7 +1,7 @@
 %% Nix Quick Reference Sheet
 %% James Geddes, The Alan Turing Institute, 2023
 %% CC0
-\documentclass[10pt, a4paper, landscape]{article}
+\documentclass[9pt, a4paper, landscape]{extarticle}
 \usepackage[T1]{fontenc}
 \usepackage{multicol}
 \setlength{\columnsep}{3em}
@@ -26,7 +26,9 @@
 \newcommand{\cmd}[1]{\texttt{#1}}
 \newcommand{\str}{\textsf{String}}
 \newcommand{\pth}{\textsf{Path}}
-\newcommand{\num}{\textsf{Number}}
+\newcommand{\itg}{\textsf{Int}} % \int was taken
+\newcommand{\flt}{\testsf{Float}}
+\newcommand{\num}{\textsf{Num}} % Either an int or a float
 \newcommand{\lst}{\textsf{List}}
 \newcommand{\ats}{\textsf{Attrs}}
 \newcommand{\bln}{\textsf{Bool}}
@@ -60,7 +62,7 @@ attribute names.
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
 
   \parbox[t]{8em}{\emph{attrs}\texttt{.}\emph{attrpath} \\
-    $[$ \texttt{or} \emph{expr} $]$}
+    ${}\;\;[$ \texttt{or} \emph{expr} $]$}
   & Attribute selection (with default if attribute does not exist). \\
 
   \emph{attrs} \texttt{?} \emph{attrpath} & Test whether attribute
@@ -82,28 +84,172 @@ attribute names.
   \cmd{!}, \cmd{\&\&}, \cmd{||}, \cmd{->} & Logical operators,
   including negation and implication. (Negation has higher precendence
   than comparison.) \\
-  
 \end{tabularx}
 
+\columnbreak
 \subsection*{Constants}
 Specific values show the value of the constant as of today, on my
 machine.
 
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{currentSystem} & \cmd{"aarch64-darwin"}. \\
-\cmd{currentTime} & 1700936742. Unix time; does not update on repeated
-evaluation. \\
-\cmd{nixVersion} & \cmd{"2.18.1"}, as returned by `cmd{nix -{}-version}'. \\
-\cmd{langVersion} & 6. \\
-\cmd{builtins} & \cmd{\{\ ...\ \}}. This very list! \\
-\cmd{storeDir} & \cmd{"/nix/store"}. \\
-\cmd{nixPath} & \cmd{[\ ...\ ]} List of paths to search when a path is
-written in the form \cmd{<\emph{path}>}.  \\
-\cmd{derivation} & \cmd{«lambda @ /builtin/derivation.nix:5:1»} No
-idea! \\
-\cmd{true}, \cmd{false} & Boolean values. \\
-\cmd{null} & The value \cmd{null}. \\
+  \cmd{currentSystem} & `\cmd{aarch64-darwin}'. \\
+  \cmd{currentTime} & `1700936742'. Unix time; does not update on repeated
+  evaluation. \\
+  \cmd{nixVersion} & `\cmd{2.18.1}', as returned by `cmd{nix -{}-version}'. \\
+  \cmd{langVersion} & `6'. \\
+  \cmd{builtins} & \cmd{\{\ ...\ \}}. This very list! \\
+  \cmd{storeDir} & `\cmd{/nix/store}'. \\
+  \cmd{nixPath} & `\cmd{[\ ...\ ]}'. List of paths to search when a path is
+  written in the form `\cmd{<\emph{path}>}'.  \\
+  \cmd{derivation} & \cmd{«lambda @ /builtin/derivation.nix:5:1»} No
+  idea! \\
+  \cmd{true}, \cmd{false} & Boolean values. \\
+  \cmd{null} & The value `\cmd{null}'. \\
 \end{tabularx}
+
+\subsection*{Arithmetic and logical}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+  \cmd{isInt}, \cmd{isFloat} & Predicates for numbers. \\
+  \cmd{add}, \cmd{sub}, \cmd{mul}, \cmd{div} &  Binary operators. \\ 
+  \cmd{ceil}, \cmd{floor} & $\num\to\itg$. \\
+  \cmd{lessThan} & Comparison. \\
+  \cmd{bitAnd}, \cmd{bitOr}, \cmd{bitXor} & Bitwise logical operators. \\
+\end{tabularx}
+
+\subsection*{Lists}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+  \cmd{isList}      & Predicate for lists. \\
+  \cmd{[]}          & The empty list. \\
+  \cmd{genList}     & $(\itg\to\alpha)\to\itg\to\lst[\alpha]$.\newline
+  \cmd{genList} $f$ $n$ applies $f$ to the list 0, 1, 2, \dots, $n-1$. \\
+
+  \cmd{head}, \cmd{tail} & First and rest. \textbf{Warning:} \cmd{tail}
+  is $O(N)$! \\
+  \cmd{elemAt}      & $\lst[\alpha] \to \itg \to \alpha$. Get the $n$th element of a list. \\
+  \cmd{length}      & $\lst \to \itg$. \\
+  
+  \cmd{map}         & $(\alpha\to\beta)\to\lst[\alpha]\to\lst[\beta]$. \\
+  \cmd{filter}      & $(\alpha\to\bln)\to\lst[\alpha]\to\lst[\alpha]$. \\
+  \cmd{foldl'}      & $(\beta\to\alpha\to\beta)\to\beta\to\lst[\alpha]\to\beta$. Reduce the list.\\
+  
+  \cmd{elem}        & $\alpha\to\lst[\alpha]\to\bln$. Is an element in the list? \\
+  \cmd{all}         & $(\alpha \to \bln) \to \lst[\alpha] \to \bln$. \\
+  \cmd{any}         & $(\alpha \to \bln) \to \lst[\beta] \to \bln$. \\ 
+  
+  \cmd{concatLists} & $\lst[\lst[\alpha]]\to\lst[\alpha]$.\\
+  \cmd{concatMap}   & $(\alpha\to\lst[\beta])\to\lst[\alpha]\to\lst[\beta]$. \cmd{concatMap f
+    xs} is equivalent to \cmd{concatLists (map f xs)} but faster. \\
+
+  \cmd{groupBy}     & $(\alpha\to\str)\to\lst[\alpha]\to\ats$. Returns an attribute
+  set whose names are computed from each list element and whose values
+  are sublists. \\
+  \cmd{partition}   & $(\alpha\to\bln)\to\lst[\alpha]\to\ats$. Returns an attribute set
+  with two names, \cmd{right} and \cmd{wrong}, and sublists as values. \\
+
+  \cmd{sort}        & $(\alpha\to\alpha\to\bln)\to\lst[\alpha]\to\lst[\alpha]$. \\
+
+  \cmd{listToAttrs} & $\lst[\ats]\to\ats$. Construct an attribute set
+  from a list of attribute sets, each having exactly two names,
+  \cmd{name} and \cmd{value}. \\
+\end{tabularx}
+
+\subsection*{Attribute sets}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+\cmd{attrNames} & $\ats \to \lst$. Names, alphabetically
+sorted. \\
+\cmd{attrValues} & $\ats \to \lst$. Values, in the same order as returned
+by\cmd{attrNames}. \\
+\cmd{catAttrs} & $\str \to \lst[\ats] \to \lst$. Return the values of a
+named attribute from a list of attribute sets.
+
+\end{tabularx}
+
+\subsection*{Paths and strings}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+\cmd{baseNameOf} & $\str\to\str$. Everything following the last
+`\cmd{/}' in a path.
+
+\end{tabularx}
+
+\subsection*{Other}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+\cmd{abort} & $\str \to \bot $. Abort and print message. \\
+\cmd{break} & $\str \to \bot $. In debug mode, enter REPL.\@ Otherwise print string.
+
+\end{tabularx}
+
+
+
+\cmd{compareVersions}:
+
+\cmd{concatStringsSep}:
+\cmd{deepSeq}:
+\cmd{derivationStrict}:
+\cmd{dirOf}:
+\cmd{fetchGit}:
+\cmd{fetchMercurial}:
+\cmd{fetchTarball}:
+\cmd{fetchTree}:
+\cmd{fetchurl}:
+\cmd{filterSource}:
+\cmd{findFile}:
+\cmd{flakeRefToString}:
+\cmd{fromJSON}:
+\cmd{fromTOML}:
+\cmd{functionArgs}:
+\cmd{genericClosure}:
+\cmd{getAttr}:
+\cmd{getContext}:
+\cmd{getEnv}:
+\cmd{getFlake}:
+\cmd{hasAttr}:
+\cmd{hasContext}:
+\cmd{hashFile}:
+\cmd{hashString}:
+\cmd{import}:
+\cmd{intersectAttrs}:
+\cmd{isAttrs}:
+\cmd{isBool}:
+\cmd{isFloat}:
+\cmd{isFunction}:
+\cmd{isInt}:
+\cmd{isNull}:
+\cmd{isPath}:
+\cmd{isString}:
+\cmd{mapAttrs}:
+\cmd{match}:
+\cmd{parseDrvName}:
+\cmd{parseFlakeRef}:
+
+\cmd{path}:
+\cmd{pathExists}:
+\cmd{placeholder}:
+\cmd{readDir}:
+\cmd{readFile}:
+\cmd{readFileType}:
+\cmd{removeAttrs}:
+\cmd{replaceStrings}:
+\cmd{scopedImport}:
+\cmd{seq}:
+\cmd{split}:
+\cmd{splitVersion}:
+\cmd{storePath}:
+\cmd{stringLength}:
+\cmd{substring}:
+\cmd{throw}:
+\cmd{toFile}:
+\cmd{toJSON}:
+\cmd{toPath}:
+\cmd{toString}:
+\cmd{toXML}:
+\cmd{trace}:
+\cmd{traceVerbose}:
+\cmd{tryEval}:
+\cmd{typeOf}:
+\cmd{unsafeDiscardOutputDependency}:
+\cmd{unsafeDiscardStringContext}:
+\cmd{unsafeGetAttrPos}:
+\cmd{zipAttrsWith}:
 
 \subsection*{Derivations}
 
@@ -122,140 +268,6 @@ idea! \\
 \cmd{appendContext} ?
 
 % \end{tabularx}
-
-\subsection*{Arithmetic and logical}
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-  \cmd{add} &  $\num \to \num \to \num$. \\
-  \cmd{bitAnd} & $\num \to \num \to \num$. \\
-  \cmd{bitOr} & $\num \to \num \to \num$. \\
-  \cmd{bitXor} & $\num \to \num \to \num$. \\
-  
-\end{tabularx}
-
-\subsection*{Lists}
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{all} & $(\alpha \to \bln) \to \lst \to \bln$. \\
-\cmd{any} & $(\alpha \to \bln) \to \lst \to \bln$. \\ 
-\end{tabularx}
-
-\subsection*{Attribute sets}
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{attrNames} & $\ats \to \lst$. Names, alphabetically
-sorted. \\
-\cmd{attrValues} & $\ats \to \lst$. Values, in the same order as returned
-by\cmd{attrNames}. \\
-\cmd{catAttrs} & $\str \to \lst[\ats] \to \lst$. Return the values of a
-named attribute from a list of attribute sets.
-
-\end{tabularx}
-
-\subsection*{Paths and strings}
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{baseNameOf} & $\str\to\str$. Everything following the last \cmd{/}.
-
-\end{tabularx}
-
-\subsection*{Other}
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-\cmd{abort} & $\str \to \bot $. Abort and print message. \\
-\cmd{break} & $\str \to \bot $. In debug mode, enter REPL.\@ Otherwise print string.
-
-\end{tabularx}
-
-
-\cmd{ceil}:
-\cmd{compareVersions}:
-\cmd{concatLists}:
-\cmd{concatMap}:
-\cmd{concatStringsSep}:
-\cmd{deepSeq}:
-\cmd{derivationStrict}:
-\cmd{dirOf}:
-\cmd{div}:
-\cmd{elem}:
-\cmd{elemAt}:; false = false
-\cmd{fetchGit}:
-\cmd{fetchMercurial}:
-\cmd{fetchTarball}:
-\cmd{fetchTree}:
-\cmd{fetchurl}:
-\cmd{filter}:
-\cmd{filterSource}:
-\cmd{findFile}:
-\cmd{flakeRefToString}:
-\cmd{floor}:
-\cmd{foldl'}:
-\cmd{fromJSON}:
-\cmd{fromTOML}:
-\cmd{functionArgs}:
-\cmd{genList}:
-\cmd{genericClosure}:
-\cmd{getAttr}:
-\cmd{getContext}:
-\cmd{getEnv}:
-\cmd{getFlake}:
-\cmd{groupBy}:
-\cmd{hasAttr}:
-\cmd{hasContext}:
-\cmd{hashFile}:
-\cmd{hashString}:
-\cmd{head}:
-\cmd{import}:
-\cmd{intersectAttrs}:
-\cmd{isAttrs}:
-\cmd{isBool}:
-\cmd{isFloat}:
-\cmd{isFunction}:
-\cmd{isInt}:
-\cmd{isList}:
-\cmd{isNull}:
-\cmd{isPath}:
-\cmd{isString}:
-\cmd{length}:
-\cmd{lessThan}:
-\cmd{listToAttrs}:
-\cmd{map}:
-\cmd{mapAttrs}:
-\cmd{match}:
-\cmd{mul}:
-
-\cmd{parseDrvName}:
-\cmd{parseFlakeRef}:
-\cmd{partition}:
-\cmd{path}:
-\cmd{pathExists}:
-\cmd{placeholder}:
-\cmd{readDir}:
-\cmd{readFile}:
-\cmd{readFileType}:
-\cmd{removeAttrs}:
-\cmd{replaceStrings}:
-\cmd{scopedImport}:
-\cmd{seq}:
-\cmd{sort}:
-\cmd{split}:
-\cmd{splitVersion}:
-\cmd{storePath}:
-\cmd{stringLength}:
-\cmd{sub}:
-\cmd{substring}:
-\cmd{tail}:
-\cmd{throw}:
-\cmd{toFile}:
-\cmd{toJSON}:
-\cmd{toPath}:
-\cmd{toString}:
-\cmd{toXML}:
-\cmd{trace}:
-\cmd{traceVerbose}:
-\cmd{tryEval}:
-\cmd{typeOf}:
-\cmd{unsafeDiscardOutputDependency}:
-\cmd{unsafeDiscardStringContext}:
-\cmd{unsafeGetAttrPos}:
-\cmd{zipAttrsWith}:
-
-  
 
 \end{multicols*}
 \end{document}
