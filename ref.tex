@@ -49,6 +49,9 @@
 
 \section*{Builtins}
 
+%% ============================================================
+%% Operators
+
 \subsection*{Operators}
 
 The following are approximately in order of precendence. Function
@@ -86,6 +89,9 @@ attribute names.
   than comparison.) \\
 \end{tabularx}
 
+%% ============================================================
+%% Constants
+
 \columnbreak
 \subsection*{Constants}
 Specific values show the value of the constant as of today, on my
@@ -107,6 +113,9 @@ machine.
   \cmd{null} & The value `\cmd{null}'. \\
 \end{tabularx}
 
+%% ============================================================
+%% Arithmetic and logical
+
 \subsection*{Arithmetic and logical}
 
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
@@ -124,6 +133,9 @@ machine.
   operators. \\
 \end{tabularx}
 
+%% ============================================================
+%% Other types
+
 \subsection*{Other types}
 
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
@@ -137,6 +149,9 @@ machine.
   
 \end{tabularx}
 
+
+%% ============================================================
+%% Lists
 
 \subsection*{Lists}
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
@@ -174,6 +189,9 @@ machine.
   from a list of attribute sets, each having exactly two names,
   \cmd{name} and \cmd{value}. \\
 \end{tabularx}
+
+%% ============================================================
+%% Attribute sets
 
 \subsection*{Attribute sets}
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
@@ -214,25 +232,16 @@ machine.
 
   \cmd{removeAttrs} & $\ats\to\lst[\str]\to\ats$. Remove attributes. \\
 
-
 \end{tabularx}
 
-\subsection*{Paths and strings}
+%% ============================================================
+%% Strings
+
+\subsection*{Strings}
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
 
-  \cmd{isPath}, \cmd{isString} & $\alpha\to\bln$. Predicates for paths and
-  strings. \\
+  \cmd{isString} & $\alpha\to\bln$. Predicate for strings. \\
 
-  \cmd{baseNameOf} & $\str\to\str$. Everything following the last
-  `\cmd{/}' in a path. \\
-
-  \cmd{dirOf} & $\str\to\str$. Everything before the final `\cmd{/}`. \\
-  
-  \cmd{compareVersions} & $\str\to\str\to\bln$. Compare versions
-  represented as semantic version strings. \\
-  
-  \cmd{splitVersion} & $\str\to\lst[\str]$. Split semantic version into
-  components. \\
   
   \cmd{concatStringsSep} & $\str\to\lst[\str]\to\str$. Concactenate a list
   of strings, splicing in a separator. \\
@@ -261,10 +270,7 @@ machine.
 
   \cmd{substring} & $\itg\to\itg\to\str$. Arguments are start and
   length. A length of $-1$ means ``until end of string.'' \\
-\end{tabularx}
 
-\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-    
   \cmd{toJSON} & $\alpha\to\str$. Convert to JSON.\@ Derivations are translated
   to output paths; paths are copied to the store and converted to
   store paths. \\
@@ -275,10 +281,34 @@ machine.
   \cmd{"1"}. Attribute sets use the value of applying
   \cmd{\_\_toString} to themselves or the value of \cmd{outPath}. \\
 
+\end{tabularx}
+
+%% ============================================================
+%% Paths and files
+
+\subsection{Paths and files}
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+  \cmd{isPath} & $\alpha\to\bln$. Predicate for paths. \\
+
+  \cmd{baseNameOf} & $\str\to\str$. Everything following the last
+  `\cmd{/}' in a path. \\
+
+  \cmd{dirOf} & $\str\to\str$. Everything before the final `\cmd{/}`. \\
+  
+  \cmd{compareVersions} & $\str\to\str\to\bln$. Compare versions
+  represented as semantic version strings. \\
+  
+  \cmd{splitVersion} & $\str\to\lst[\str]$. Split semantic version into
+  components. \\
+
+  
   \cmd{toPath} & Deprecated. Use path concatenation. \\
 \end{tabularx}
 
-\subsection*{Other}
+%% ============================================================
+%% Other
+
+\subsection*{Control flow}
 
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
   \cmd{abort} & $\str \to \bot $. Abort and print message. \\
@@ -286,6 +316,11 @@ machine.
   \cmd{break} & $\str \to \bot $. In debug mode, enter REPL.\@ Otherwise
   print string.\\
 
+  \cmd{seq}  & $\cmd{seq} \; e_1 \; e_2$ evaluates $e_1$ and returns $e_2$.  \\
+
+  \cmd{deepSeq} & Like \cmd{seq} except that elements or attributes of
+  the first expression are recursively evaluted. \\ 
+  
   \cmd{throw} & $\str\to\bot$. Throw error message. Occasionally does not
   abort. \\
 
@@ -295,15 +330,13 @@ machine.
   \cmd{traceVerbose} &  $\alpha\to\beta\to\beta$. Like \cmd{trace} but only print if
   \cmd{{-}{-}trace-verbose} enabled. \\
 
-  \cmd{tryEval} & $\alpha\to\ats\{\cmd{success}; \cmd{value}\}$. Attemt to
+  \cmd{tryEval} & $\alpha\to\ats\{\cmd{success}; \cmd{value}\}$. Attempt to
   shallowly evaluate expression, catching \cmd{throw} or \cmd{assert}
   (but not \cmd{abort}). 
 \end{tabularx}
 
 
 \cmd{placeholder} 
-
-\cmd{deepSeq}:
 
 \cmd{derivationStrict}:
 
@@ -338,7 +371,6 @@ machine.
 \cmd{readFileType}:
 
 \cmd{scopedImport}:
-\cmd{seq}:
 
 
 
