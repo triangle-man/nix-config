@@ -4,7 +4,7 @@
 
 ** Running the downloaded binary
 
-From [[https://nixos.org/download.html#nix-install-macos][the download page]]:
+From [[https://nixos.org/download.html#nix-install-macos][the download page]] (the "multiuser installation"):
 
 #+begin_src sh
   sh <(curl -L https://nixos.org/nix/install)
@@ -26,12 +26,27 @@ Nix needs to set your ~PATH~ and ~MANPATH~, and the Nix versions of
 these need to come /before/ any other versions. The Nix installer does
 this by writing to ~/etc/
 
+tbd: Do these need to be redone after OS updates?
 
+** Updating Nix
+
+#+begin_src sh
+  sudo -i sh -c 'nix-channel --update && nix-env --install --attr nixpkgs.nix\
+    && launchctl remove org.nixos.nix-daemon\
+    && launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist'
+#+end_src
+Well, I'm not doing that very often.
+
+** Updating individual packages
 
 * Nix
 
 ** Glossary
 
+- Profile ::
+  tbd
+- Channel ::
+  tbd
 
 ** Directories and configuration files
 

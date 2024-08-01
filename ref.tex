@@ -34,9 +34,9 @@
 \newcommand{\bln}{\textsf{Bool}}
 
 %%
-\title{Nix Quick Reference}
+\title{Nix Builtins Quick Reference}
 %%\author{}
-\date{\vskip-10ex November 2023}
+\date{\vskip-10ex August 2024}
 %%
 \renewcommand{\arraystretch}{1.2}
 \setlength{\tabcolsep}{0.5em}
@@ -107,8 +107,6 @@ machine.
   \cmd{storeDir} & `\cmd{/nix/store}'. \\
   \cmd{nixPath} & `\cmd{[\ ...\ ]}'. List of paths to search when a path is
   written in the form `\cmd{<\emph{path}>}'.  \\
-  \cmd{derivation} & \cmd{«lambda @ /builtin/derivation.nix:5:1»} No
-  idea! \\
   \cmd{true}, \cmd{false} & Boolean values. \\
   \cmd{null} & The value `\cmd{null}'. \\
 \end{tabularx}
@@ -146,6 +144,9 @@ machine.
   \cmd{typeOf} & $\alpha\to\str$. Return string representation of type of
   value. (Attribute sets return `\cmd{set}'; functions return
   `\cmd{lambda}'.) \\
+
+  \cmd{getEnv} & $\str\to\alpha$. Returns the value of an environment variable. 
+
   
 \end{tabularx}
 
@@ -295,11 +296,31 @@ machine.
 
   \cmd{dirOf} & $\str\to\str$. Everything before the final `\cmd{/}`. \\
   
+  \cmd{findFile} & Find files, with complicated rules. Example:
+                   \cmd{<nixpkgs>} is equivalent to
+                   \cmd{builtins.findFile builtins.nixPath
+                   "nixpkgs"}. \\
+  
+  \cmd{hashFile} & \cmd{hashFile type p} is a base~16 representation
+                   of the hash of \cmd{p} using algorithm \cmd{type}. \\
+  
   \cmd{compareVersions} & $\str\to\str\to\bln$. Compare versions
   represented as semantic version strings. \\
   
   \cmd{splitVersion} & $\str\to\lst[\str]$. Split semantic version into
   components. \\
+
+  \cmd{path} & An enrichment of the built-in path type. TODO:\ I don't
+               know what this means.  \\
+  \cmd{pathExists} & $\str\to\bln$. True if the path exists when this
+                     expressio is evaluated. \\
+  \cmd{readDir} & $\str\to\ats$. Return a map from directory entries to
+                  filetype. \\
+  \cmd{readFile} & $\str\to\str$. Return the contents of the file as a
+                   string. \\
+  \cmd{readFileType} & $\str\to\str$. Return the filetype of the
+                       file. One of \cmd{regular}, \cmd{director},
+                       \cmd{symlink}, and \cmd{unknown}. \\
 
   
   \cmd{toPath} & Deprecated. Use path concatenation. \\
@@ -311,7 +332,8 @@ machine.
 \subsection*{Control flow}
 
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-  \cmd{abort} & $\str \to \bot $. Abort and print message. \\
+  \cmd{abort} & $\str \to \bot $. Abort and print message. Can be
+                used without the \cmd{builtins} prefix. \\
 
   \cmd{break} & $\str \to \bot $. In debug mode, enter REPL.\@ Otherwise
   print string.\\
@@ -321,8 +343,15 @@ machine.
   \cmd{deepSeq} & Like \cmd{seq} except that elements or attributes of
   the first expression are recursively evaluted. \\ 
   
+  \cmd{import} & Parse and return the Nix expression in the file given
+                 by its argument. (If a directory, then use
+                 \cmd{default.nix} in that directory.) The expression
+                 in the file cannot contain free variables but it can
+                 evaluate to a function which may be applied. Can be
+                 used without the \cmd{builtins} prefix. \\
+
   \cmd{throw} & $\str\to\bot$. Throw error message. Occasionally does not
-  abort. \\
+                abort. Can be used without the \cmd{builtins} prefix. \\
 
   \cmd{trace} & $\alpha\to\beta\to\beta$. Print first argument on stderr, then evaluate
   second argument. \\
@@ -335,74 +364,81 @@ machine.
   (but not \cmd{abort}). 
 \end{tabularx}
 
+%% ============================================================
+%% Derivations and the Store
 
-\cmd{placeholder} 
+\subsection*{Derivations and the Store}
 
-\cmd{derivationStrict}:
-
-\cmd{fetchGit}:
-\cmd{fetchMercurial}:
-\cmd{fetchTarball}:
-\cmd{fetchTree}:
-\cmd{fetchurl}:
-
-\cmd{filterSource}:
-\cmd{findFile}:
-
-\cmd{flakeRefToString}:
-
-\cmd{getContext}:
-\cmd{getEnv}:
-\cmd{getFlake}:
-\cmd{hasContext}:
-
-\cmd{hashFile}:
-\cmd{import}:
-
-\cmd{parseDrvName}:
-\cmd{parseFlakeRef}:
-
-
-\cmd{path}:
-\cmd{pathExists}:
-
-\cmd{readDir}:
-\cmd{readFile}:
-\cmd{readFileType}:
-
-\cmd{scopedImport}:
-
-
-
-\cmd{storePath}:
-
-\cmd{toFile}:
-
-
-
-\cmd{unsafeDiscardOutputDependency}:
-\cmd{unsafeDiscardStringContext}:
-
-\cmd{unsafeGetAttrPos}:
-
-
-\subsection*{Derivations}
-
-% \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-  \cmd{addDrvOutputDependencies} ?
-
-    Create a copy of the given string where a single consant string context element is turned into a "derivation deep" string context element.
-
-    The store path that is the constant string context element should point to a valid derivation, and end in .drv.
-
-    The original string context element must not be empty or have multiple elements, and it must not have any other type of element other than a constant or derivation deep element. The latter is supported so this function is idempotent.
-
-    This is the opposite of builtins.unsafeDiscardOutputDependency.
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+  \cmd{derivation} & Can be used with the \cmd{builtins} prefix. \\
+  \cmd{placeholder} & $\str\to\str$. Typical arguments are \cmd{"out"},
+                      \cmd{"bin"}, or \cmd{"dev"}. Return a ``placeholder string'' for
+                      the output specified that will be substituted by
+                      the corresponding output path at build
+                      time. TODO:\ I don't know what this means. \\
   
-\cmd{addErrorContext} ?
-\cmd{appendContext} ?
+  \cmd{fetchClosure} & $\ats\to\str$. Fetch a store path closure from a
+                       binary cache and return the store path as a string with
+                       context. TODO:\ I don't know what this means. \\
+  \cmd{storePath} & Set a derivation attribute to the result of this
+                    to induce a dependency on an existing store path
+                    without copying its contents. \\
+  \cmd{toFile} & \cmd{toFile name s} stores string \cmd{s} in a file
+                 in the Nix store, the file having suffix \cmd{name},
+                 and returns its path.  \\
+                 
+  \cmd{fetchGit} & Fetch a path from git. TODO:\ I don't know what
+                   kind of value is returned. Probably the path to
+                   the downloaded files? \\
 
-% \end{tabularx}
+  \cmd{fetchMercurial} & As above. \\
+  \cmd{fetchTarball} & As above. \\
+  \cmd{fetchTree} & As above. \\ 
+  \cmd{fetchurl}: & As above. \\
+
+  \cmd{filterSource} & Copy files to the Nix store while filtering
+                       those files. \\
+  
+  \cmd{getContext} & $\str\to\ats$. Return the ``string context'' of its
+                   argument: a map from store derivation paths to
+                   output names. \\
+  \cmd{hasContext} & $\str\to\bln$. True if the argument string has a
+                   non-empty context. \\  
+
+  \cmd{outputOf} & Return the output path of a derivation. TODO:\ I
+                   don't know what this means. \\
+
+  \cmd{parseDrvName} & $\str\to\ats\{name, version\}$. Split argument
+                       into a package name and a version. \\
+  
+\end{tabularx}
+
+%% ============================================================
+%% Flakes
+
+\subsection*{Flakes}
+
+\begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
+\cmd{flakeRefToString} & Convert a flake reference from attribute set
+                         format to URL format. \\
+  
+\cmd{getFlake} & Fetch a flake from a flake reference and return its
+                 output attributes and some metadata. \\
+  
+\cmd{parseFlakeRef} & $\str\to\ats$. Parse a flake reference and return
+                      its ``exploded form.'' \\
+
+\end{tabularx}
+
+
+\subsection*{Not in the manual}
+
+\cmd{addErrorContext}, \cmd{appendContext},
+\cmd{addDrvOutputDependencies}, \cmd{scopedImport}, \cmd{derivationStrict},
+\cmd{unsafeDiscardOutputDependency}, \cmd{unsafeDiscardStringContext},
+\cmd{unsafeGetAttrPos}.
+
 
 \end{multicols*}
 \end{document}
+
