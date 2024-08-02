@@ -20,11 +20,18 @@ creates) ~/etc/synthetic.conf~ and ~/etc/fstab~. Finally there's a
 LaunchDaemon to ensure this volume gets mounted early on during boot
 up.
 
+** Where is Nix?
+
+Nix puts *everything* in ~/nix~. In particular, essentially all files
+are in subdirectories of ~/nix/store~ (whose names are hashes of their
+contents!), and these are accessed by symlinks (often chains of
+symlinks) in ~/nix/var~.
+
 ** Fixing shell config files
 
 Nix needs to set your ~PATH~ and ~MANPATH~, and the Nix versions of
 these need to come /before/ any other versions. The Nix installer does
-this by writing to ~/etc/
+this by writing to files in ~/etc~. 
 
 tbd: Do these need to be redone after OS updates?
 
@@ -37,7 +44,36 @@ tbd: Do these need to be redone after OS updates?
 #+end_src
 Well, I'm not doing that very often.
 
+* Nixpkgs
+
+Nix is a language and a command line tool. Nixpkgs is the set of
+packages.
+
+** The command-line tool(s)
+
+Nix has a bit of a problem with having two ways of doing things: the
+old way and the new way. As I understand it, everyone uses the new way
+but unhelpfully the manual foregrounds the old way; indeed, the new
+way is still labelled “experimental.”
+
+The old way is a set of command-line tools called ~nix-repl~,
+~nix-env~, and so on. The new way is a single tool, ~nix~, with
+multiple subcommands, such as ~nix repl~. To enable the new way, you
+should add
+#+begin_src
+  experimental-features = nix-command flakes
+#+end_src
+to ~~/.config/nix/nix.conf~.
+
+
+
+
+
 ** Updating individual packages
+
+tbd
+
+
 
 * Nix
 

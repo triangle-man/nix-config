@@ -370,7 +370,8 @@ machine.
 \subsection*{Derivations and the Store}
 
 \begin{tabularx}{\columnwidth}{@{}l>{\raggedright\arraybackslash}X@{}}
-  \cmd{derivation} & Can be used with the \cmd{builtins} prefix. \\
+  \cmd{derivation} & Can be used without the \cmd{builtins}
+                     prefix. TODO: I don't know how this works. \\
   \cmd{placeholder} & $\str\to\str$. Typical arguments are \cmd{"out"},
                       \cmd{"bin"}, or \cmd{"dev"}. Return a ``placeholder string'' for
                       the output specified that will be substituted by
