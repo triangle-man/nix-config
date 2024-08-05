@@ -60,7 +60,6 @@ without that package. (One may also roll back to a previous
 generation.) Garbage collection of unreachable directories in the
 store is done with ~nix store gc~.
 
-
 ** Fixing shell config files
 
 Nix needs to set your ~PATH~ and ~MANPATH~, and the Nix versions of
@@ -109,14 +108,17 @@ to ~~/.config/nix/nix.conf~.
 ** Installing packages
 
 The old way used ~nix-env~ and that is still suggested by the
-documentation. The new way is using ~nix profile~; once you have used
+documentation. The new way uses ~nix profile~; once you have used
 ~nix profile~ the old way no longer works.
 
-This looks verbose but it’s because everything revolves around
-profiles.
+The following looks verbose but it’s because everything revolves
+around profiles.
 #+begin_src sh
   nix profile install nixpkgs#hello
 #+end_src
+
+The first time you do this it will take ages: ~nixpkgs~ is really a
+Nix expression, which has to evaluated.
 
 The form ~nixpkgs#hello~ denotes an “installable,” and the entire command
 adds the installable to the current Nix profile. In this example,
@@ -136,6 +138,16 @@ I think this assumes you are using flakes and upgrades all of them:
 ** Flakes
 
 
+* Diary: Moving from homebrew to nixpkgs
+
+** <2024-08-05 Mon>
+
+~brew list~ shows all installed packages. ~brew deps --tree
+--installed~ makes a tree of dependencies. ~brew cleanup~ removes
+unused dependencies. ~brew leaves~ shows packages on which nothing
+else depends.
+
+~brew bundle dump~ dumps a list of all installed packages to ~Brewfile~.
 
 
 * Nix
