@@ -22,10 +22,44 @@ up.
 
 ** Where is Nix?
 
-Nix puts *everything* in ~/nix~. In particular, essentially all files
-are in subdirectories of ~/nix/store~ (whose names are hashes of their
-contents!), and these are accessed by symlinks (often chains of
-symlinks) in ~/nix/var~.
+Nix puts *all* packages in ~/nix~. In particular, each package is in
+its own subdirectory of ~/nix/store~ (the name of which is a hash of
+its contents), and these are accessed by symlinks (often chains of
+symlinks) in ~/nix/var~. If the package itself needs files from other
+packages at runtime, the directory names of those dependent packages
+were hard-coded during the build process. The contents of these
+package directories never change after they are created. If a new
+version of the package is installed, a new directory is created with a
+different hash in the name; the old one is not over-written.  
+
+The user’s shell also needs to be able to find binaries. An
+“environment” is a directory in ~/nix/store~ containing (at least) a
+~bin~ directory (and maybe other things). That ~bin~ directory
+contains symlinks to the actual binaries (in their respective
+directories within the Nix store). If you install a new package, its
+binary is /not/ added to that environment: store directories are
+immutable! Instead, a new directory is created with symlinks to the
+existing and the new binaries.
+
+How does the shell find the environment? Well, by following ~$PATH~,
+obviously, which contains a special “profile” directory. A “profile”
+is a directory that is a symlink to an environment. Profiles are /not/
+in the Nix store. On my machine, my profile is
+~~/.nix-profile~. (Although there is also a fallback to
+~/nix/var/nix/profiles/default~.) That is not actually a symlink to
+the store, its a symlink to ~~/.local/state/nix/profiles/profile~. In
+turn, that is a symlink to
+~~/.local/state/nix/profiles/profile-5-link~. Which, finally, is a
+symlink to a directory in the store containing symlinks to the
+binaries.
+
+The file ~profile-5-link~ is called a “generation.” Adding a new
+package adds a new generation. Deleting a package does not delete the
+package directory in the store! Instead, a new generation is created
+without that package. (One may also roll back to a previous
+generation.) Garbage collection of unreachable directories in the
+store is done with ~nix store gc~.
+
 
 ** Fixing shell config files
 
@@ -43,6 +77,13 @@ tbd: Do these need to be redone after OS updates?
     && launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist'
 #+end_src
 Well, I'm not doing that very often.
+
+Oh, apparently there is also
+#+begin_src sh
+  nix upgrade-nix
+#+end_src
+
+But I suspect neither of these update packages.
 
 * Nixpkgs
 
@@ -65,13 +106,35 @@ should add
 #+end_src
 to ~~/.config/nix/nix.conf~.
 
+** Installing packages
 
+The old way used ~nix-env~ and that is still suggested by the
+documentation. The new way is using ~nix profile~; once you have used
+~nix profile~ the old way no longer works.
 
+This looks verbose but it’s because everything revolves around
+profiles.
+#+begin_src sh
+  nix profile install nixpkgs#hello
+#+end_src
 
+The form ~nixpkgs#hello~ denotes an “installable,” and the entire command
+adds the installable to the current Nix profile. In this example,
+~nixpkgs~ is a “flake reference” and ~hello~ is an attribute path. The
+flake reference ~nixpkgs~ is looked up in the flake registery. The
+registery can be listed with ~nix registry list~. In my case,
+~nixpkgs~ points to ~github:NixOS/nixpkgs/nixpkgs-unstable~. (The last
+part, ~nixpkgs-unstable~ actually denotes a branch.)
 
 ** Updating individual packages
 
-tbd
+I think this assumes you are using flakes and upgrades all of them:
+#+begin_src sh
+  nix profile upgrade
+#+end_src
+
+** Flakes
+
 
 
 
